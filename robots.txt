@@ -1,0 +1,3 @@
+User-agent: *
+Disallow:
+Sitemap: http://fc8.github.io/sitemap.xml
