@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Posts on fc8&#39;s Blog</title>
-    <link>https://fc8.github.io/post/</link>
-    <description>Recent content in Posts on fc8&#39;s Blog</description>
+    <title>机器学习 on fc8&#39;s Blog</title>
+    <link>https://fc8.github.io/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/</link>
+    <description>Recent content in 机器学习 on fc8&#39;s Blog</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Mon, 25 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://fc8.github.io/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 25 Jan 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://fc8.github.io/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>从零开始写一个神经网络（第一篇）</title>
       <link>https://fc8.github.io/post/handwriting/</link>
@@ -21,18 +21,6 @@
 数据格式 ​	根据网站的介绍，有四个数据文件，分别为两个数据和两个标签。下面是网站关于数据的介绍，这里我只选取了训练集，测试集同理。
 TRAINING SET LABEL FILE (train-labels-idx1-ubyte):
 1 2 3 4 5 6 7 8  [offset] [type] [value] [description]` `0000 32 bit integer 0x00000801(2049) magic number (MSB first)` `0004 32 bit integer 60000 number of items` `0008 unsigned byte ?? label` `0009 unsigned byte ?? label` `.</description>
-    </item>
-    
-    <item>
-      <title>Hello World</title>
-      <link>https://fc8.github.io/post/helloworld/</link>
-      <pubDate>Sun, 24 Jan 2021 00:00:00 +0000</pubDate>
-      
-      <guid>https://fc8.github.io/post/helloworld/</guid>
-      <description>计算机世界就让我们从一个Hello World开始吧！
-本博客建立于2021年1月24日。建立初衷就是因为最近疫情在家，正在学习一些新的知识，想要找一个记录自己笔记的平台，就萌生了搭建一个博客的想法。
-从接触计算机开始一直到现在，我自己搭建的博客也已经数不清有多少个了，但是没有一个能坚持到我真正的开始写东西，都是死在了装各种插件，各种美化上面。
-这次，也是我决心改变自己一段时间之后的日子，我也打算在这里记录成长，记录一些属于自己的东西，坚持下去吧！加油</description>
     </item>
     
   </channel>
