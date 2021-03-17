@@ -1,0 +1,557 @@
+---
+author: "fc8"
+title: "Spring Boot+Element UI 实现图书管理小系统"
+date: "2021-01-25"
+#description: "Guide to emoji usage in Hugo"
+tags: ["Java","Vue"]
+---
+
+> 前端采用Element UI，后端采用Spring Boot实现的一个图书管理系统，实现前后端分离。
+>
+> 包含的功能：
+>
+> - [x] 图书的增加
+> - [x] 图书的删除
+> - [x] 图书的修改
+> - [ ] 图书的查询
+
+## 数据库
+
+数据库只有一个一个表，包含以下几个字段：
+
+- id     //图书索引，主键
+- name    //图书名称
+- author    //图书作者
+- publish    //出版社
+- pages    //页数
+- price    //价格
+- bookcaseid    //类型
+- abled    //状态
+
+建表过程不再赘述
+
+## 前端
+
+### 最终成品
+
+![image-20210317184803715](https://i.loli.net/2021/03/17/2NwilOhEvnXFIk6.png)
+
+前端利用Vue-cli创建Vue项目
+
+设置路由
+
+```vue
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import bookManage from '../views/bookManage.vue'
+import addBook from '../views/addBook.vue'
+import Index from '../views/index.vue'
+Vue.use(VueRouter)
+
+const routes = [
+    {
+        path: '/',
+        name: '图书管理',
+        component: Index,
+        redirect: '/bookManage',
+        children: [
+            {
+                path: '/bookManage',
+                name: '查询图书',
+                component: bookManage
+            },
+            {
+                path: '/addBook',
+                name: '添加图书',
+                component: addBook
+            }
+        ]
+    }
+]
+
+const router = new VueRouter({
+    mode: 'history',
+    base: process.env.BASE_URL,
+    routes
+})
+
+export default router
+```
+
+构建整个页面的框架
+
+```vue
+<template>
+    <!--el-container 构建整个页面框架-->
+    <el-container style="height: 500px; border: 1px solid #eee">
+        <!--el-aside构建左侧菜单-->
+        <el-aside width="10%" style="background-color: rgb(238, 241, 246)">
+            <!--el-menu左侧菜单的内容,default-openeds是默认打开哪个菜单,根据index值来确定-->
+            <el-menu router :default-openeds="['0', '1']" :default-active="$route.path">
+                <!--每一个el-submenu就是一个菜单,el-submenu是可以展开的菜单栏-->
+                <el-submenu v-for="(items,i) in $router.options.routes" :index="String(i)">
+                    <!--template是设置菜单的内容-->
+                    <template slot="title"><i class="el-icon-menu"></i>{{items.name}}</template>
+                    <el-menu-item v-for="(item,index) in items.children" :index="item.path">
+                        {{item.name}}
+                    </el-menu-item>
+                </el-submenu>
+            </el-menu>
+        </el-aside>
+
+        <el-container>
+            <el-header style="text-align: right; font-size: 12px">
+                <el-dropdown>
+                    <i class="el-icon-setting" style="margin-right: 15px"></i>
+                    <el-dropdown-menu slot="dropdown">
+                        <el-dropdown-item>查看</el-dropdown-item>
+                        <el-dropdown-item>新增</el-dropdown-item>
+                        <el-dropdown-item>删除</el-dropdown-item>
+                    </el-dropdown-menu>
+                </el-dropdown>
+                <span>王小虎</span>
+            </el-header>
+
+            <el-main>
+                <router-view></router-view>
+            </el-main>
+        </el-container>
+    </el-container>
+</template>
+
+<script>
+    export default {
+        name: "index"
+    }
+</script>
+
+<style scoped>
+    .el-header {
+        background-color: #B3C0D1;
+        color: #333;
+        line-height: 60px;
+    }
+
+    .el-aside {
+        color: #333;
+    }
+</style>
+```
+
+添加图书
+
+```vue
+<template>
+    <div>
+        <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
+            <el-form-item label="图书名称" prop="name">
+                <el-input v-model="ruleForm.name"></el-input>
+            </el-form-item>
+            <el-form-item label="图书作者" prop="author">
+                <el-input v-model="ruleForm.author"></el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="submitForm('ruleForm')">立即添加</el-button>
+                <el-button @click="resetForm('ruleForm')">重置</el-button>
+            </el-form-item>
+        </el-form>
+    </div>
+</template>
+
+<script>
+    export default {
+        data() {
+            return {
+                ruleForm: {
+                    name: '',
+                    author: '',
+                },
+                rules: {
+                    name: [
+                        {required: true, message: '请输入图书名称', trigger: 'blur'},
+                        {min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur'}
+                    ],
+                    author: [
+                        {required: true, message: '请输入图书作者', trigger: 'blur'},
+                        {min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur'}
+                    ]
+                }
+            };
+        },
+        methods: {
+            Msg(msg,type) {
+                this.$message({
+                    message: msg,
+                    type: type
+                });
+            },
+            submitForm(formName) {
+                this.$refs[formName].validate((valid) => {
+                    const _this=this;
+                    if (valid) {
+                        axios.post('http://localhost:8181/book/addBook', this.ruleForm).then(function (resp) {
+                            if(resp.data=="success"){
+                                _this.Msg('添加图书成功','success');
+                            }else{
+                                _this.Msg('添加图书失败','error');
+                            }
+                        })
+                    } else {
+                        _this.successMsg('请正确填写表单','warning');
+                        return false;
+                    }
+                });
+            },
+            resetForm(formName) {
+                this.$refs[formName].resetFields();
+            }
+        }
+    }
+</script>
+```
+
+管理图书，右侧的选项卡
+
+```vue
+<template>
+    <div>
+        <el-table
+                :data="tableData"
+                border
+                style="width: 100%">
+            <el-table-column
+                    fixed
+                    prop="id"
+                    label="ID"
+                    width="150">
+            </el-table-column>
+            <el-table-column
+                    prop="name"
+                    label="标题"
+                    width="120">
+            </el-table-column>
+            <el-table-column
+                    prop="author"
+                    label="作者"
+                    width="120">
+            </el-table-column>
+            <el-table-column
+                    fixed="right"
+                    label="操作"
+                    width="100">
+                <template slot-scope="scope">
+                    <el-button @click="showEditBook(scope.row)" type="text" size="small">修改</el-button>
+                    <el-button @click="delBook(scope.row)" type="text" size="small">删除</el-button>
+                </template>
+            </el-table-column>
+        </el-table>
+        <el-pagination
+                :page-size=pageSize
+                :pager-count=totalPages
+                layout="prev, pager, next"
+                :total=total
+                @current-change="page">
+        </el-pagination>
+
+        <el-dialog title="图书信息" :visible.sync="dialogFormVisible">
+            <el-form :model="form" :rules="rules" ref="ruleForm" >
+                <el-form-item label="图书名称" :label-width="formLabelWidth" prop="name">
+                    <el-input v-model="form.name" autocomplete="off"></el-input>
+                </el-form-item>
+                <el-form-item label="作者" :label-width="formLabelWidth" prop="author">
+                    <el-input v-model="form.author" autocomplete="off"></el-input>
+                </el-form-item>
+            </el-form>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="dialogFormVisible = false">取 消</el-button>
+                <el-button type="primary" @click="editBook('ruleForm')">修 改</el-button>
+            </div>
+        </el-dialog>
+    </div>
+</template>
+
+<script>
+    export default {
+        methods: {
+            Msg(msg,type) {
+                this.$message({
+                    message: msg,
+                    type: type
+                });
+            },
+            showEditBook(row) {
+                this.dialogFormVisible = true;
+                this.form.name = row.name;
+                this.form.author = row.author;
+                this.form.id=row.id;
+
+            }, editBook(form) {
+                this.$refs[form].validate((valid) => {
+                    const _this = this;
+                    if (valid) {
+                        axios.put('http://localhost:8181/book/editBook',this.form).then(function(resp){
+                            if(resp.data=="success"){
+                                _this.Msg('修改图书成功','success');
+                                _this.dialogFormVisible = false;
+                                window.location.reload();
+                            }else{
+                                _this.Msg('修改图书失败','error');
+                            }
+                        })
+                    }
+                });
+            },
+            page(currentPage) {
+                const _this = this;
+                axios.get('http://localhost:8181/book/findAll/' + currentPage).then(function (resp) {
+                    _this.tableData = resp.data.content;
+                })
+            },
+            delBook(row) {
+                const _this = this
+                this.$confirm('此操作将永久删除该信息, 是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    axios.post('http://localhost:8181/book/delBook', row).then(function (resp) {
+                        window.location.reload();
+                    });
+                    this.$message({
+                        type: 'success',
+                        message: '删除成功!',
+                    });
+                }).catch(() => {
+                    this.$message({
+                        type: 'info',
+                        message: '已取消删除'
+                    });
+                });
+            }
+        },
+        data() {
+            return {
+                total: null,
+                tableData: null,
+                pageSize: null,
+                totalPages: null,
+                dialogFormVisible: false,
+                form: {
+                    id:null,
+                    name:null,
+                    author:null
+                },
+                formLabelWidth: '120px',
+                rules: {
+                    name: [
+                        {required: true, message: '请输入图书名称', trigger: 'blur'},
+                        {min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur'}
+                    ],
+                    author: [
+                        {required: true, message: '请输入图书作者', trigger: 'blur'},
+                        {min: 1, max: 20, message: '长度在 1 到 20 个字符', trigger: 'blur'}
+                    ]
+                }
+            };
+        }
+        ,
+        created() {
+            const _this = this;
+            axios.get('http://localhost:8181/book/findAll/1').then(function (resp) {
+                _this.tableData = resp.data.content;
+                _this.total = resp.data.totalElements;
+                _this.pageSize = resp.data.size;
+                _this.totalPages = resp.data.totalPages;
+            })
+        }
+    }
+</script>
+```
+
+## 后端
+
+创建Maven项目，在pom.xml中导入所需的包
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.4.2</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.springBootTest</groupId>
+    <artifactId>springboottest</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>BookManager</name>
+    <description>Demo project for Spring Boot</description>
+    <properties>
+        <java.version>8</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <skipTests>true</skipTests>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+在entity文件中创建Book实体类
+
+```java
+//对实体类的注解，Hibernate映射对象都要有
+@Entity
+//@Data是lombok注解，用于自动生成get、set方法
+@Data
+public class Book {
+//  @Id用于声明一个实体类的属性映射为数据库主键的注解
+    @Id
+    //@GeneratedValue用于标注主键的生成策略，设置主键自增
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+    private String name;
+    private String author;
+}
+```
+
+在controller文件中创建BookHandler类，用来处理增删改查的请求
+
+```java
+@RestController
+//@RequestMapping是一个用来处理请求地址映射的注解，表示类中的所有响应请求方法都是以该地址作为父路径
+@RequestMapping("/book")
+public class BookHandler {
+    @Autowired
+    private BookRepository bookRepository;
+
+    @GetMapping("/findAll/{page}")
+//    @PathVariable用于替换GetMapping中的占位符，一般与get方法一起使用
+    public Page<Book> findAll(@PathVariable("page") Integer page) {
+        Pageable pageable = PageRequest.of(page - 1, 5);
+        return bookRepository.findAll(pageable);
+    }
+
+    @PostMapping("/addBook")
+//    @RequestBody主要用于前端传给后端的json字符串，必须用于POST方式提交
+    public String addBook(@RequestBody Book book) {
+        Book result = bookRepository.save(book);
+        if (result != null) {
+            return "success";
+        } else {
+            return "error";
+        }
+    }
+
+    @PostMapping("/delBook")
+    public void delBook(@RequestBody Book book) {
+        System.out.println(book);
+        bookRepository.delete(book);
+    }
+
+    //更新
+    @PutMapping("/editBook")
+    public String editBook(@RequestBody Book book) {
+        Book b=bookRepository.findById(book.getId()).get();
+        b.setAuthor(book.getAuthor());
+        b.setName(book.getName());
+        Book result = bookRepository.save(b);
+        if (result != null) {
+            return "success";
+        } else {
+            return "error";
+        }
+    }
+}
+```
+
+前后端分离的方式，前端的请求和后端的请求会有跨域的问题，这里采用在后端解决跨域的问题。
+
+```java
+@Configuration
+public class CrosConfig implements WebMvcConfigurer {
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowedOriginPatterns("*")
+                .allowedMethods("GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowCredentials(true)
+                .maxAge(3600)
+                .allowedHeaders("*");
+    }
+}
+```
+
+创建repository文件实现BookRepository接口，继承JpaRepository接口，实现数据库操作
+
+```java
+//提供了数据库增删改查的接口，创建BookRepository接口继承
+public interface BookRepository extends JpaRepository<Book,Integer>{
+}
+```
+
+在application.yml中配置数据库
+
+```yml
+#yml是连接数据库的配置文件
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/library?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: true #测试的时候展示sql语句
+    properties:
+      hibernate:
+        format_sql: true
+server:
+  port: 8181
+```
