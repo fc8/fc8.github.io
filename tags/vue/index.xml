@@ -8,10 +8,10 @@
     <lastBuildDate>Wed, 17 Mar 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://fc8.github.io/tags/vue/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Spring Boot&#43;Element UI 实现图书管理小系统</title>
-      <link>https://fc8.github.io/post/bookmanagedemo/</link>
+      <link>https://fc8.github.io/post/java/bookmanagedemo/</link>
       <pubDate>Wed, 17 Mar 2021 00:00:00 +0000</pubDate>
       
-      <guid>https://fc8.github.io/post/bookmanagedemo/</guid>
+      <guid>https://fc8.github.io/post/java/bookmanagedemo/</guid>
       <description>前端采用Element UI，后端采用Spring Boot实现的一个图书管理系统，实现前后端分离。
 包含的功能：
  图书的增加 图书的删除 图书的修改 图书的查询   数据库 数据库只有一个一个表，包含以下几个字段：
