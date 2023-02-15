@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang=zh>
+<head>
+    <!-- so meta -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+    <meta name="description" content="逆向目标 地址：https:&#x2F;&#x2F;bj.ke.com&#x2F; 目标：登录中的密码加密 参数：password   解密过程多次尝试发现password是会变化的，搜索关键字定位，搜索mainAuthMethodName关键字，找到几个位置，然后下断点，断下来了之后继续分析可以看到这里像是对密码进行了加密，在控制台进行测试证实就是这里。跟进去到这个函数定义的地方，主要有两部分组成，一个是l()一个是this">
+<meta property="og:type" content="article">
+<meta property="og:title" content="某壳网登录">
+<meta property="og:url" content="https://fc8.github.io/rejs/931e8524edb8/index.html">
+<meta property="og:site_name" content="alm0st">
+<meta property="og:description" content="逆向目标 地址：https:&#x2F;&#x2F;bj.ke.com&#x2F; 目标：登录中的密码加密 参数：password   解密过程多次尝试发现password是会变化的，搜索关键字定位，搜索mainAuthMethodName关键字，找到几个位置，然后下断点，断下来了之后继续分析可以看到这里像是对密码进行了加密，在控制台进行测试证实就是这里。跟进去到这个函数定义的地方，主要有两部分组成，一个是l()一个是this">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/fc8/Picrepository/master/202302141518132.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/fc8/Picrepository/master/202302151345015.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/fc8/Picrepository/master/202302151346936.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/fc8/Picrepository/master/202302151348010.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/fc8/Picrepository/master/202302151353454.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/fc8/Picrepository/master/202302151504469.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/fc8/Picrepository/master/202302151520996.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/fc8/Picrepository/master/202302151522912.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/fc8/Picrepository/master/202302141650850.png">
+<meta property="article:published_time" content="2023-02-15T07:29:36.000Z">
+<meta property="article:modified_time" content="2023-02-15T08:50:28.166Z">
+<meta property="article:author" content="alm0st">
+<meta property="article:tag" content="js逆向">
+<meta property="article:tag" content="爬虫">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/fc8/Picrepository/master/202302141518132.png">
+    
+    
+      
+        
+          <link rel="shortcut icon" href="/images/favicon.ico">
+        
+      
+      
+        
+          <link rel="icon" type="image/png" href="/images/favicon-192x192.png" sizes="192x192">
+        
+      
+      
+        
+          <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+        
+      
+    
+    <!-- title -->
+    <title>某壳网登录</title>
+    <!-- styles -->
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <!-- persian styles -->
+    
+    <!-- rss -->
+    
+    
+	<!-- mathjax -->
+	
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+<body class="max-width mx-auto px3 ltr">
+    
+      <div id="header-post">
+  <a id="menu-icon" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="menu-icon-tablet" href="#" aria-label="目录"><i class="fas fa-bars fa-lg"></i></a>
+  <a id="top-icon-tablet" href="#" aria-label="顶部" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');" style="display:none;"><i class="fas fa-chevron-up fa-lg"></i></a>
+  <span id="menu">
+    <span id="nav">
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">文章</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </span>
+    <br/>
+    <span id="actions">
+      <ul>
+        
+        
+        <li><a class="icon" aria-label="返回顶部" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up" aria-hidden="true" onmouseover="$('#i-top').toggle();" onmouseout="$('#i-top').toggle();"></i></a></li>
+        <li><a class="icon" aria-label="分享文章" href="#"><i class="fas fa-share-alt" aria-hidden="true" onmouseover="$('#i-share').toggle();" onmouseout="$('#i-share').toggle();" onclick="$('#share').toggle();return false;"></i></a></li>
+      </ul>
+      <span id="i-prev" class="info" style="display:none;">上一篇</span>
+      <span id="i-next" class="info" style="display:none;">下一篇</span>
+      <span id="i-top" class="info" style="display:none;">返回顶部</span>
+      <span id="i-share" class="info" style="display:none;">分享文章</span>
+    </span>
+    <br/>
+    <div id="share" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://fc8.github.io/rejs/931e8524edb8/"><i class="fab fa-facebook " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://fc8.github.io/rejs/931e8524edb8/&text=某壳网登录"><i class="fab fa-twitter " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://fc8.github.io/rejs/931e8524edb8/&title=某壳网登录"><i class="fab fa-linkedin " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://fc8.github.io/rejs/931e8524edb8/&is_video=false&description=某壳网登录"><i class="fab fa-pinterest " aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=某壳网登录&body=Check out this article: https://fc8.github.io/rejs/931e8524edb8/"><i class="fas fa-envelope " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://fc8.github.io/rejs/931e8524edb8/&title=某壳网登录"><i class="fab fa-get-pocket " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://fc8.github.io/rejs/931e8524edb8/&title=某壳网登录"><i class="fab fa-reddit " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://fc8.github.io/rejs/931e8524edb8/&title=某壳网登录"><i class="fab fa-stumbleupon " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://fc8.github.io/rejs/931e8524edb8/&title=某壳网登录"><i class="fab fa-digg " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://fc8.github.io/rejs/931e8524edb8/&name=某壳网登录&description="><i class="fab fa-tumblr " aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://fc8.github.io/rejs/931e8524edb8/&t=某壳网登录"><i class="fab fa-hacker-news " aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+    <div id="toc">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%80%86%E5%90%91%E7%9B%AE%E6%A0%87"><span class="toc-number">1.</span> <span class="toc-text">逆向目标</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A7%A3%E5%AF%86%E8%BF%87%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">解密过程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">3.</span> <span class="toc-text">参考</span></a></li></ol>
+    </div>
+  </span>
+</div>
+
+    
+    <div class="content index py4">
+        
+        <article class="post" itemscope itemtype="http://schema.org/BlogPosting">
+  <header>
+    
+    <h1 class="posttitle" itemprop="name headline">
+        某壳网登录
+    </h1>
+
+
+
+    <div class="meta">
+      <span class="author" itemprop="author" itemscope itemtype="http://schema.org/Person">
+        <span itemprop="name">alm0st</span>
+      </span>
+      
+    <div class="postdate">
+      
+        <time datetime="2023-02-15T07:29:36.000Z" itemprop="datePublished">2023-02-15</time>
+        
+      
+    </div>
+
+
+      
+    <div class="article-category">
+        <i class="fas fa-archive"></i>
+        <a class="category-link" href="/categories/js%E9%80%86%E5%90%91/">js逆向</a>
+    </div>
+
+
+      
+    <div class="article-tag">
+        <i class="fas fa-tag"></i>
+        <a class="tag-link-link" href="/tags/js%E9%80%86%E5%90%91/" rel="tag">js逆向</a>, <a class="tag-link-link" href="/tags/%E7%88%AC%E8%99%AB/" rel="tag">爬虫</a>
+    </div>
+
+
+    </div>
+  </header>
+  
+
+  <div class="content" itemprop="articleBody">
+    <h1 id="逆向目标"><a href="#逆向目标" class="headerlink" title="逆向目标"></a>逆向目标</h1><ul>
+<li>地址：<a target="_blank" rel="noopener" href="https://bj.ke.com/">https://bj.ke.com/</a></li>
+<li>目标：登录中的密码加密</li>
+<li>参数：password</li>
+</ul>
+<hr>
+<h1 id="解密过程"><a href="#解密过程" class="headerlink" title="解密过程"></a>解密过程</h1><p><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202302141518132.png" alt="image.png"><br>多次尝试发现password是会变化的，搜索关键字定位，搜索<code>mainAuthMethodName</code>关键字，找到几个位置，然后下断点，断下来了之后继续分析<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202302151345015.png" alt="image.png"><br>可以看到这里像是对密码进行了加密，在控制台进行测试证实就是这里。<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202302151346936.png" alt="image.png"><br>跟进去到这个函数定义的地方，主要有两部分组成，一个是l()一个是this.getKey().encrypt()，l()函数很简单，跟进去直接就能找到<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202302151348010.png" alt="image.png"></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> a = <span class="string">&quot;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/&quot;</span>;</span><br><span class="line"><span class="keyword">function</span> <span class="title function_">l</span>(<span class="params">t</span>) &#123;</span><br><span class="line">	<span class="keyword">var</span> e, n, r = <span class="string">&quot;&quot;</span>;</span><br><span class="line">	<span class="keyword">for</span> (e = <span class="number">0</span>; e + <span class="number">3</span> &lt;= t.<span class="property">length</span>; e += <span class="number">3</span>)</span><br><span class="line">		n = <span class="built_in">parseInt</span>(t.<span class="title function_">substring</span>(e, e + <span class="number">3</span>), <span class="number">16</span>),</span><br><span class="line">		r += a.<span class="title function_">charAt</span>(n &gt;&gt; <span class="number">6</span>) + a.<span class="title function_">charAt</span>(<span class="number">63</span> &amp; n);</span><br><span class="line">	<span class="keyword">for</span> (e + <span class="number">1</span> == t.<span class="property">length</span> ? (n = <span class="built_in">parseInt</span>(t.<span class="title function_">substring</span>(e, e + <span class="number">1</span>), <span class="number">16</span>),</span><br><span class="line">	r += a.<span class="title function_">charAt</span>(n &lt;&lt; <span class="number">2</span>)) : e + <span class="number">2</span> == t.<span class="property">length</span> &amp;&amp; (n = <span class="built_in">parseInt</span>(t.<span class="title function_">substring</span>(e, e + <span class="number">2</span>), <span class="number">16</span>),</span><br><span class="line">	r += a.<span class="title function_">charAt</span>(n &gt;&gt; <span class="number">2</span>) + a.<span class="title function_">charAt</span>((<span class="number">3</span> &amp; n) &lt;&lt; <span class="number">4</span>)); <span class="number">0</span> &lt; (<span class="number">3</span> &amp; r.<span class="property">length</span>); )</span><br><span class="line">		r += <span class="string">&quot;=&quot;</span>;</span><br><span class="line">	<span class="keyword">return</span> r</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后就是看剩下的部分，这个js是由webpack打包的，所以后面的工作主要就是抠出加密代码。<br>首先找到加载器（一般都在最前面），定义一个全局变量，把加载器赋值给全局变量，查看该变量。可以看到一共有59个方法。但是要怎么从中找到我们需要的方法呢，也就是加密的方法。<br>加载器的代码如下：</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> aaa;</span><br><span class="line">!<span class="keyword">function</span>(<span class="params">n</span>) &#123;</span><br><span class="line">    <span class="keyword">var</span> r = &#123;&#125;;</span><br><span class="line">    <span class="keyword">function</span> <span class="title function_">i</span>(<span class="params">t</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (r[t])</span><br><span class="line">            <span class="keyword">return</span> r[t].<span class="property">exports</span>;</span><br><span class="line">        <span class="keyword">var</span> e = r[t] = &#123;</span><br><span class="line">            <span class="attr">i</span>: t,</span><br><span class="line">            <span class="attr">l</span>: !<span class="number">1</span>,</span><br><span class="line">            <span class="attr">exports</span>: &#123;&#125;</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="keyword">return</span> n[t].<span class="title function_">call</span>(e.<span class="property">exports</span>, e, e.<span class="property">exports</span>, i),</span><br><span class="line">        e.<span class="property">l</span> = !<span class="number">0</span>,</span><br><span class="line">        e.<span class="property">exports</span></span><br><span class="line">    &#125;</span><br><span class="line">    i.<span class="property">m</span> = n,</span><br><span class="line">    i.<span class="property">c</span> = r,</span><br><span class="line">    i.<span class="property">d</span> = <span class="keyword">function</span>(<span class="params">t, e, n</span>) &#123;</span><br><span class="line">        i.<span class="title function_">o</span>(t, e) || <span class="title class_">Object</span>.<span class="title function_">defineProperty</span>(t, e, &#123;</span><br><span class="line">            <span class="attr">enumerable</span>: !<span class="number">0</span>,</span><br><span class="line">            <span class="attr">get</span>: n</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">    ,</span><br><span class="line">    i.<span class="property">r</span> = <span class="keyword">function</span>(<span class="params">t</span>) &#123;</span><br><span class="line">        <span class="string">&quot;undefined&quot;</span> != <span class="keyword">typeof</span> <span class="title class_">Symbol</span> &amp;&amp; <span class="title class_">Symbol</span>.<span class="property">toStringTag</span> &amp;&amp; <span class="title class_">Object</span>.<span class="title function_">defineProperty</span>(t, <span class="title class_">Symbol</span>.<span class="property">toStringTag</span>, &#123;</span><br><span class="line">            <span class="attr">value</span>: <span class="string">&quot;Module&quot;</span></span><br><span class="line">        &#125;),</span><br><span class="line">        <span class="title class_">Object</span>.<span class="title function_">defineProperty</span>(t, <span class="string">&quot;__esModule&quot;</span>, &#123;</span><br><span class="line">            <span class="attr">value</span>: !<span class="number">0</span></span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line">    ,</span><br><span class="line">    i.<span class="property">t</span> = <span class="keyword">function</span>(<span class="params">e, t</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="number">1</span> &amp; t &amp;&amp; (e = <span class="title function_">i</span>(e)),</span><br><span class="line">        <span class="number">8</span> &amp; t)</span><br><span class="line">            <span class="keyword">return</span> e;</span><br><span class="line">        <span class="keyword">if</span> (<span class="number">4</span> &amp; t &amp;&amp; <span class="string">&quot;object&quot;</span> == <span class="keyword">typeof</span> e &amp;&amp; e &amp;&amp; e.<span class="property">__esModule</span>)</span><br><span class="line">            <span class="keyword">return</span> e;</span><br><span class="line">        <span class="keyword">var</span> n = <span class="title class_">Object</span>.<span class="title function_">create</span>(<span class="literal">null</span>);</span><br><span class="line">        <span class="keyword">if</span> (i.<span class="title function_">r</span>(n),</span><br><span class="line">        <span class="title class_">Object</span>.<span class="title function_">defineProperty</span>(n, <span class="string">&quot;default&quot;</span>, &#123;</span><br><span class="line">            <span class="attr">enumerable</span>: !<span class="number">0</span>,</span><br><span class="line">            <span class="attr">value</span>: e</span><br><span class="line">        &#125;),</span><br><span class="line">        <span class="number">2</span> &amp; t &amp;&amp; <span class="string">&quot;string&quot;</span> != <span class="keyword">typeof</span> e)</span><br><span class="line">            <span class="keyword">for</span> (<span class="keyword">var</span> r <span class="keyword">in</span> e)</span><br><span class="line">                i.<span class="title function_">d</span>(n, r, <span class="keyword">function</span>(<span class="params">t</span>) &#123;</span><br><span class="line">                    <span class="keyword">return</span> e[t]</span><br><span class="line">                &#125;</span><br><span class="line">                .<span class="title function_">bind</span>(<span class="literal">null</span>, r));</span><br><span class="line">        <span class="keyword">return</span> n</span><br><span class="line">    &#125;</span><br><span class="line">    ,</span><br><span class="line">    i.<span class="property">n</span> = <span class="keyword">function</span>(<span class="params">t</span>) &#123;</span><br><span class="line">        <span class="keyword">var</span> e = t &amp;&amp; t.<span class="property">__esModule</span> ? <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> t.<span class="property">default</span></span><br><span class="line">        &#125;</span><br><span class="line">        : <span class="keyword">function</span>(<span class="params"></span>) &#123;</span><br><span class="line">            <span class="keyword">return</span> t</span><br><span class="line">        &#125;</span><br><span class="line">        ;</span><br><span class="line">        <span class="keyword">return</span> i.<span class="title function_">d</span>(e, <span class="string">&quot;a&quot;</span>, e),</span><br><span class="line">        e</span><br><span class="line">    &#125;</span><br><span class="line">    ,</span><br><span class="line">    i.<span class="property">o</span> = <span class="keyword">function</span>(<span class="params">t, e</span>) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="title class_">Object</span>.<span class="property"><span class="keyword">prototype</span></span>.<span class="property">hasOwnProperty</span>.<span class="title function_">call</span>(t, e)</span><br><span class="line">    &#125;</span><br><span class="line">    ,</span><br><span class="line">    i.<span class="property">p</span> = <span class="string">&quot;/&quot;</span>,</span><br><span class="line">    aaa = i;</span><br><span class="line">    <span class="title function_">i</span>(i.<span class="property">s</span> = <span class="number">20</span>)</span><br><span class="line">&#125;(&#123;</span><br><span class="line">	<span class="number">50</span>: <span class="keyword">function</span>(<span class="params"></span>)&#123;&#125;,</span><br><span class="line">	 <span class="number">5</span>: <span class="keyword">function</span>(<span class="params"></span>)&#123;&#125;,</span><br><span class="line">	 ...</span><br><span class="line">	 ...</span><br><span class="line">&#125;);</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202302151353454.png" alt="image.png"><br>这里用这样一个遍历来寻找</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">aaa.<span class="property">m</span>.<span class="title function_">forEach</span>(<span class="keyword">function</span> (<span class="params">element, index</span>) &#123;</span><br><span class="line">    <span class="keyword">if</span>(element.<span class="title function_">toString</span>().<span class="title function_">indexOf</span>(<span class="string">&quot;o.ec.encrypt&quot;</span>) != -<span class="number">1</span>) &#123;</span><br><span class="line">        <span class="variable language_">console</span>.<span class="title function_">log</span>(index)</span><br><span class="line">    &#125;&#125;)</span><br></pre></td></tr></table></figure>
+<p>得到下标为50，然后打印出第50个的函数进行定位<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202302151504469.png" alt="image.png"><br>然后将他复制出来（再打印出第51个的位置，中间就是第50个函数），复制到加载器最后的对象中，然后进行调用<code>aaa(50).default()</code>发现报错了。<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202302151520996.png" alt="image.png"><br>在报错前面打印出来报错信息，t打印出来是一个下标，就表示需要的函数，t现在显示的是5<br>所以我们就需要把第5个函数继续复制出来，就这样一直报错一直复制，最后把需要的函数都复制全了之后是下面这个样子的<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202302151522912.png" alt="image.png"><br>然后再调用就可以正常运行了，下面是调用的函数</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">  </span><br><span class="line"><span class="title function_">aaa</span>(<span class="number">50</span>).<span class="title function_">default</span>();  </span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getPassword</span>(<span class="params">pass</span>)&#123;  </span><br><span class="line">    <span class="keyword">var</span> e = <span class="string">&quot;MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCCB81pk1Go/d7K8unYqeB6YyQdDgIRsLji7BxlBfMC2U8/0lyOLxJ6sQb1RmKaILuxN0hRci4zWPfkkPhttWaogq3XABYiDYbx0843ge4D79pG21+qWplw43uHZNs0B6iUChJW1O3DDJPXGwj50L1ySTVt7G7iqsIr9PLZVRSZmQIDAQAB&quot;</span>;  </span><br><span class="line">    ddd.<span class="property">ec</span>.<span class="title function_">setPublicKey</span>(e);  </span><br><span class="line">    ddd.<span class="property">publicKey</span> = e;  </span><br><span class="line">    <span class="comment">// console.log(ddd.ec.encrypt(&quot;a123456789&quot;))  </span></span><br><span class="line">    <span class="keyword">return</span> ddd.<span class="property">ec</span>.<span class="title function_">encrypt</span>(<span class="string">&quot;a123456789&quot;</span>);  </span><br><span class="line">&#125;  </span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">getPassword</span>(<span class="string">&quot;a123456789&quot;</span>));</span><br></pre></td></tr></table></figure>
+<p>使用得到的结果进行登录测试，成功登录<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202302141650850.png" alt="image.png"></p>
+<h1 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h1><p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1QS4y1i7vp/?spm_id_from=333.880.my_history.page.click&vd_source=cf89b02a7fa60e83cc9a96e5b7136de2">https://www.bilibili.com/video/BV1QS4y1i7vp/?spm_id_from=333.880.my_history.page.click&amp;vd_source=cf89b02a7fa60e83cc9a96e5b7136de2</a><br><a target="_blank" rel="noopener" href="https://blog.csdn.net/Python_DJ/article/details/125419181">https://blog.csdn.net/Python_DJ/article/details/125419181</a></p>
+
+  </div>
+</article>
+
+
+
+        
+          <div id="footer-post-container">
+  <div id="footer-post">
+
+    <div id="nav-footer" style="display: none">
+      <ul>
+         
+          <li><a href="/">首页</a></li>
+         
+          <li><a href="/about/">关于</a></li>
+         
+          <li><a href="/archives/">文章</a></li>
+         
+          <li><a href="/categories/">分类</a></li>
+         
+          <li><a href="/search/">搜索</a></li>
+        
+      </ul>
+    </div>
+
+    <div id="toc-footer" style="display: none">
+      <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%80%86%E5%90%91%E7%9B%AE%E6%A0%87"><span class="toc-number">1.</span> <span class="toc-text">逆向目标</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A7%A3%E5%AF%86%E8%BF%87%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">解密过程</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">3.</span> <span class="toc-text">参考</span></a></li></ol>
+    </div>
+
+    <div id="share-footer" style="display: none">
+      <ul>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.facebook.com/sharer.php?u=https://fc8.github.io/rejs/931e8524edb8/"><i class="fab fa-facebook fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://twitter.com/share?url=https://fc8.github.io/rejs/931e8524edb8/&text=某壳网登录"><i class="fab fa-twitter fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.linkedin.com/shareArticle?url=https://fc8.github.io/rejs/931e8524edb8/&title=某壳网登录"><i class="fab fa-linkedin fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://pinterest.com/pin/create/bookmarklet/?url=https://fc8.github.io/rejs/931e8524edb8/&is_video=false&description=某壳网登录"><i class="fab fa-pinterest fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" href="mailto:?subject=某壳网登录&body=Check out this article: https://fc8.github.io/rejs/931e8524edb8/"><i class="fas fa-envelope fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://getpocket.com/save?url=https://fc8.github.io/rejs/931e8524edb8/&title=某壳网登录"><i class="fab fa-get-pocket fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://reddit.com/submit?url=https://fc8.github.io/rejs/931e8524edb8/&title=某壳网登录"><i class="fab fa-reddit fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.stumbleupon.com/submit?url=https://fc8.github.io/rejs/931e8524edb8/&title=某壳网登录"><i class="fab fa-stumbleupon fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://digg.com/submit?url=https://fc8.github.io/rejs/931e8524edb8/&title=某壳网登录"><i class="fab fa-digg fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="http://www.tumblr.com/share/link?url=https://fc8.github.io/rejs/931e8524edb8/&name=某壳网登录&description="><i class="fab fa-tumblr fa-lg" aria-hidden="true"></i></a></li>
+  <li><a class="icon" target="_blank" rel="noopener" href="https://news.ycombinator.com/submitlink?u=https://fc8.github.io/rejs/931e8524edb8/&t=某壳网登录"><i class="fab fa-hacker-news fa-lg" aria-hidden="true"></i></a></li>
+</ul>
+
+    </div>
+
+    <div id="actions-footer">
+        <a id="menu" class="icon" href="#" onclick="$('#nav-footer').toggle();return false;"><i class="fas fa-bars fa-lg" aria-hidden="true"></i> 菜单</a>
+        <a id="toc" class="icon" href="#" onclick="$('#toc-footer').toggle();return false;"><i class="fas fa-list fa-lg" aria-hidden="true"></i> 目录</a>
+        <a id="share" class="icon" href="#" onclick="$('#share-footer').toggle();return false;"><i class="fas fa-share-alt fa-lg" aria-hidden="true"></i> 分享</a>
+        <a id="top" style="display:none" class="icon" href="#" onclick="$('html, body').animate({ scrollTop: 0 }, 'fast');"><i class="fas fa-chevron-up fa-lg" aria-hidden="true"></i> 返回顶部</a>
+    </div>
+
+  </div>
+</div>
+
+        
+        <footer id="footer">
+  <div class="footer-left">
+    Copyright &copy;
+    
+    
+    2021-2023
+    alm0st
+  </div>
+  <div class="footer-right">
+    <nav>
+      <ul>
+        <!--
+       --><li><a href="/">首页</a></li><!--
+     --><!--
+       --><li><a href="/about/">关于</a></li><!--
+     --><!--
+       --><li><a href="/archives/">文章</a></li><!--
+     --><!--
+       --><li><a href="/categories/">分类</a></li><!--
+     --><!--
+       --><li><a href="/search/">搜索</a></li><!--
+     -->
+      </ul>
+    </nav>
+  </div>
+</footer>
+
+    </div>
+    <!-- styles -->
+
+
+
+  <link rel="preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" crossorigin="anonymous" onload="this.onload=null;this.rel='stylesheet'"/>
+
+
+    <!-- jquery -->
+ 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" crossorigin="anonymous"></script> 
+
+
+
+
+<!-- clipboard -->
+
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.7/clipboard.min.js" crossorigin="anonymous"></script> 
+  
+  <script type="text/javascript">
+  $(function() {
+    // copy-btn HTML
+    var btn = "<span class=\"btn-copy tooltipped tooltipped-sw\" aria-label=\"复制到粘贴板！\">";
+    btn += '<i class="far fa-clone"></i>';
+    btn += '</span>'; 
+    // mount it!
+    $(".highlight table").before(btn);
+    var clip = new ClipboardJS('.btn-copy', {
+      text: function(trigger) {
+        return Array.from(trigger.nextElementSibling.querySelectorAll('.code')).reduce((str,it)=>str+it.innerText+'\n','')
+      }
+    });
+    clip.on('success', function(e) {
+      e.trigger.setAttribute('aria-label', "复制成功！");
+      e.clearSelection();
+    })
+  })
+  </script>
+
+
+<script src="/js/main.js"></script>
+
+<!-- search -->
+
+<!-- Google Analytics -->
+
+<!-- Baidu Analytics -->
+
+<!-- Cloudflare Analytics -->
+
+<!-- Umami Analytics -->
+
+<!-- Disqus Comments -->
+
+<!-- utterances Comments -->
+
+</body>
+</html>
