@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>【爬虫逆向进阶实战】第一章</title>
+      <link href="/pachongnixiangjinjieshizhan/8797d3584961/"/>
+      <url>/pachongnixiangjinjieshizhan/8797d3584961/</url>
+      
+        <content type="html"><![CDATA[<p>爬虫任务的流程：确定采集目标、发起请求、数据解析、数据存储<br>打开一次网页都会发生什么：</p><ol><li>DNS解析：将域名解析成ip地址</li><li>tcp连接：tcp三次握手</li><li>发送报文：发送HTTP请求报文</li><li>接收响应：服务器处理请求并返回HTTP保温</li><li>页面渲染：浏览器解析渲染页面</li><li>断开连接：TCP四次挥手</li></ol><h2 id="分布式爬虫框架"><a href="#分布式爬虫框架" class="headerlink" title="分布式爬虫框架"></a>分布式爬虫框架</h2><h3 id="主从分布式"><a href="#主从分布式" class="headerlink" title="主从分布式"></a>主从分布式</h3><p>采用master-slaver体系，一个master多个slaver，master是主控直接点，负责任务管理调度分发；slaver是工作子节点，负责采集、解析存储。常见的分布式框架python有Scrapy-Redis、java的WebMagic和go的Zerg。<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202302211702703.png" alt="image.png"></p><h3 id="对等分布式"><a href="#对等分布式" class="headerlink" title="对等分布式"></a>对等分布式</h3><p>所有工作节点没有主从之分</p><h2 id="遍历的策略"><a href="#遍历的策略" class="headerlink" title="遍历的策略"></a>遍历的策略</h2><h3 id="广度优先"><a href="#广度优先" class="headerlink" title="广度优先"></a>广度优先</h3><h3 id="深度优先"><a href="#深度优先" class="headerlink" title="深度优先"></a>深度优先</h3><h3 id="最佳优先策略"><a href="#最佳优先策略" class="headerlink" title="最佳优先策略"></a>最佳优先策略</h3>]]></content>
+      
+      
+      <categories>
+          
+          <category> 爬虫 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 爬虫 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>某壳网登录</title>
       <link href="/rejs/931e8524edb8/"/>
       <url>/rejs/931e8524edb8/</url>
