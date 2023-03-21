@@ -4,6 +4,56 @@
   
     
     <entry>
+      <title>OD使用总结</title>
+      <link href="/re/2717e75a9169/"/>
+      <url>/re/2717e75a9169/</url>
+      
+        <content type="html"><![CDATA[<table><thead><tr><th>指令</th><th>快捷键</th><th>说明</th></tr></thead><tbody><tr><td>Step Into</td><td>F7</td><td>单步执行，进入</td></tr><tr><td>Step Over</td><td>F8</td><td>单步执行，跳过</td></tr><tr><td>Restart</td><td>Ctrl+F2</td><td>终止程序，重新载入</td></tr><tr><td>Go to</td><td>Ctrl+G</td><td>跳转到指定地址</td></tr><tr><td>Run</td><td>F9</td><td>运行，遇到断点停</td></tr><tr><td>Execute till return</td><td>Ctrl+F9</td><td>执行函数代码，直到遇到RETN命令，用于跳出函数体</td></tr><tr><td>Execute till cursor</td><td>F4</td><td>执行到光标所在位置</td></tr><tr><td>Comment</td><td>;</td><td>添加注释</td></tr><tr><td>Assemble</td><td>空格</td><td>编写汇编代码</td></tr><tr><td>Edit Data</td><td>Ctrl+E</td><td>编辑数据</td></tr><tr><td></td><td></td><td></td></tr></tbody></table>]]></content>
+      
+      
+      <categories>
+          
+          <category> re </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 逆向 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>逆向helloworld程序</title>
+      <link href="/re/8618609a716c/"/>
+      <url>/re/8618609a716c/</url>
+      
+        <content type="html"><![CDATA[<h1 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h1><p>找到main函数，修改弹窗内容</p><h1 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h1><p>使用od加载Helloworld程序，窗口如下所示<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202303121954688.png" alt="image.png"></p><ul><li>代码窗口：默认用于显示反汇编代码，还用于显示各种注释、标签，分析代码时显示循环、跳转位置等信息</li><li>寄存器窗口：实时显示CPU寄存器的值，可用于修改特定的寄存器</li><li>数据窗口：以HEX&#x2F;ASCII&#x2F;Unicode值的形式显示进程的内存地址，也可在此修改内存地址</li><li>栈窗口：实时显示&#x3D;&#x3D;ESP（栈指针）&#x3D;&#x3D;寄存器指向的进程栈内存，并允许修改<br>在调试器停止的地方就是程序的起始地址，本程序中为4011A0，它是一段EP(EntryPoint)代码。<blockquote><p>在od中，红色注释为Win32Api函数</p></blockquote></li></ul><p>在4011A5处<em>JMP 0040104F</em>跳转到0040104F地址处，这里就是Visual C++的启动函数<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202303122007704.png" alt="image.png"></p><h2 id="查找Main函数的几种办法"><a href="#查找Main函数的几种办法" class="headerlink" title="查找Main函数的几种办法"></a>查找Main函数的几种办法</h2><h3 id="顺序查找"><a href="#顺序查找" class="headerlink" title="顺序查找"></a>顺序查找</h3><p>在main函数中有调用MessageBox()的api代码，所以可以顺序查找每一个call，如果在其中找到MessageBox()Api，就可以继续分析；如果没有，就可以直接跳过。<br>在地址00401144处有一条代码CALL 00401000，进入之后可以看到调用了MessageBox()，并且参数也一致，所以可以判断00401000函数就是我们要找的Main函数<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202303122012493.png" alt="image.png"></p><h3 id="代码执行法"><a href="#代码执行法" class="headerlink" title="代码执行法"></a>代码执行法</h3><p>我们需要查找的main函数中执行了MessageBox()函数，main函数执行后会弹出一个消息对话框。所以我们只需要一直F8执行，直到程序弹出对话框的时候，就表示执行了main函数，当前断点对应的的函数也就是main函数了。</p><h3 id="字符串检索"><a href="#字符串检索" class="headerlink" title="字符串检索"></a>字符串检索</h3><p>鼠标右键-中文搜索-Unicode可以找到MessageBox的参数，进行定位</p><h3 id="API检索"><a href="#API检索" class="headerlink" title="API检索"></a>API检索</h3><p>右键-查找-所有模块间调用<br>可以看到程序调用了user32.MessageBoxW，该函数位于0040100E处，双击进入找到main函数。<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202303122024122.png" alt="image.png"></p><h3 id="在api代码中设置断点"><a href="#在api代码中设置断点" class="headerlink" title="在api代码中设置断点"></a>在api代码中设置断点</h3><p>当程序使用了压缩器&#x2F;保护器等工具，od可能无法列出api调用列表，此时我们可以对dll代码库进行添加断点，在od中选择view-memory打开内存映射窗口，可以看到user32库被加载到了内存中。<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202303122028628.png" alt="image.png"><br>在od中右键-查找-所有模块中的名称可以列出被加载dll文件中提供的所有api，我们查找messagebox<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202303122034539.png" alt="image.png"><br>双击进入函数，对函数下断点，执行程序<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202303122036685.png" alt="image.png"><br>从栈中可以看到ESP 0019FF1C记录一个返回地址为00401014，main函数调用完MessageBoxW函数后，程序执行流将返回到该地址处。</p><h2 id="修改内容"><a href="#修改内容" class="headerlink" title="修改内容"></a>修改内容</h2><h3 id="第一种方式"><a href="#第一种方式" class="headerlink" title="第一种方式"></a>第一种方式</h3><p>找到main函数之后，可以看到弹窗字符串的存放位置为004092A0</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">00401007 push HelloWor.004092A0     Hello World!</span><br></pre></td></tr></table></figure><p>在数据窗口跳转到004092A0<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202303211243354.png" alt="image.png"><br>双击打开编辑界面，即可以对内容进行修改。<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202303211246771.png" alt="image.png"></p><blockquote><p>若新字符串的长度大于原有的字符串，执行覆盖操作时可能损坏字符串后面的数据，所以一定要小心。</p></blockquote><p><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202303211249678.png" alt="image.png"></p><h3 id="第二种方式"><a href="#第二种方式" class="headerlink" title="第二种方式"></a>第二种方式</h3><p>在给MessageBoxW()函数传递字符串参数时，传递的是字符串所在区域的首地址，如果改变了字符串的地址，消息框就会显示变更后的字符串。所以在内存的某个区域新建一个长字符串，并把新字符串的首地址传递给MessageBoxW()函数。</p><blockquote><p>应用程序被加载到内存时有一个最小的内存分配大小，一般为1000。即使程序运行时只占用了100内存，它被加载到内存时仍然会分到1000左右的内存，这些内存一部分被程序占用，其余部分为空余区域，全部被填充为NULL。<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202303211254260.png" alt="image.png"></p></blockquote>]]></content>
+      
+      
+      <categories>
+          
+          <category> re </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 逆向 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>有道翻译结果逆向</title>
       <link href="/rejs/9a001d52cecc/"/>
       <url>/rejs/9a001d52cecc/</url>
