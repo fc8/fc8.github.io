@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>hexo部署博客到git失败</title>
+      <link href="/others/a54492701d19/"/>
+      <url>/others/a54492701d19/</url>
+      
+        <content type="html"><![CDATA[<p>写完了博客想要部署到git上面去，发现总是提示</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">fatal: unable to access &#x27;https://github.com/xxx/xxxx.github.io/&#x27;: Failed to connect to github.com port 443 after 5125 ms: Couldn&#x27;t connect to server</span><br></pre></td></tr></table></figure><p>之前解决过但是总是忘，这里记一下，是因为代理没有配置到git的config中导致的。</p><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">git config --global http.proxy 127.0.0.1:10809</span><br><span class="line">git config --global https.proxy 127.0.0.1:10809</span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      <categories>
+          
+          <category> others </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> 杂 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>BJDCTF 2020 babystack2.0</title>
       <link href="/pwn/8ad46297829f/"/>
       <url>/pwn/8ad46297829f/</url>
